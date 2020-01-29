@@ -1,13 +1,6 @@
-package main
+package shared
 
-import (
-	"bufio"
-	"fmt"
-	"log"
-	"os"
-	"strconv"
-	"strings"
-)
+import "log"
 
 func parse(instruction int) (op int, modes []int) {
 	op = instruction % 100
@@ -121,7 +114,6 @@ func (m *Machine) RunNext() int {
 	case 4:
 		m.Latest = m.Read(1, modes[0])
 		m.Output <- m.Latest
-		log.Println(m.Latest)
 		m.pointer += 2
 		break
 	case 5:
@@ -180,49 +172,4 @@ func (m *Machine) RunNext() int {
 	}
 
 	return op
-}
-
-func part1(code []int, value int) int {
-	machine := CreateMachine(code)
-	machine.Push(value)
-	machine.Run()
-	return machine.Latest
-}
-
-func part2(code []int, value int) int {
-	machine := CreateMachine(code)
-	machine.Push(value)
-	machine.Run()
-	return machine.Latest
-}
-
-func main() {
-	file, err := os.Open("day9/input.txt")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-
-	scanner.Scan()
-	nextLine := scanner.Text()
-	stringInput := strings.Split(nextLine, ",")
-
-	input := []int{}
-	for _, word := range stringInput {
-		num, err := strconv.Atoi(word)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		input = append(input, num)
-	}
-
-	fmt.Println("p1", part1(input, 1))
-	fmt.Println("p2", part2(input, 2))
-
-	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
-	}
 }
