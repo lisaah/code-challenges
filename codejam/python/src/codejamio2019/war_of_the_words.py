@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# python src/pyutil/helper/interactive_runner.py python src/codejamio2019/testing_tool.py 0 -- python3 src/codejamio2019/war_of_the_words.py
 
 import sys
 import random
