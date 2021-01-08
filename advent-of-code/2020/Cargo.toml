@@ -1,0 +1,13 @@
+[package]
+name = "day04"
+version = "0.1.0"
+authors = ["lisamai <l.maihuynh@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+regex = "1"
+fs = "0.0.5"
+lazy_static = "1.4.0"
+array_tool = "1.0.3"

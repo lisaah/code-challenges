@@ -21,7 +21,7 @@ fn part_b(arr: Vec<i32>) {
 }
 
 fn main() {
-  let arr: Vec<i32>  = include_str!("day1.txt")
+  let arr: Vec<i32>  = include_str!("../../input/day1.txt")
     .split("\n")
     .map(|val| val.parse::<i32>().unwrap())
     .collect();
