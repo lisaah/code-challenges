@@ -64,15 +64,8 @@ class StdinLineStream {
 async function parse(inputStream: StdinLineStream): Promise<[string, number[]]> {
   return [await inputStream.getLine(), await inputStream.getLineAsNumbers()]
 }
-function update(node, edge, graph: Record<number, Set<number>>): void {
-  const edges = graph[node] || new Set();
-  edges.add(edge);
-  graph[node] = edges;
-}
 
 function sol(input: string, marbles: number[]): string {
-  marbles = [...marbles];
-
   const isOdd = marbles.length % 2 === 1;
   if (isOdd) {
     marbles.unshift(marbles.length + 1);
@@ -81,44 +74,26 @@ function sol(input: string, marbles: number[]): string {
   // Build graph
   const graph = {};
   for (let i = 0; i < marbles.length; i += 2) {
-    // Insert order
+    // Insert order pairs
     update(i + 1, i + 2, graph);
     update(i + 2, i + 1, graph);
 
-    // Remove order
-    const a_i = marbles[i];
-    const a_i_1 = marbles[i+1];
-    update(a_i, a_i_1, graph);
-    update(a_i_1, a_i, graph);
+    // Remove order pairs
+    update(marbles[i], marbles[i + 1], graph);
+    update(marbles[i + 1], marbles[i], graph);
   }
 
   // Colorize
   const colors = {};
   let insertOrder = [];
   for (let i = 1; i < marbles.length + 1; i++) {
-    const m = i;
-    const color = getColor(m, graph, colors);
-    const oppColor = OPP_COLOR[color];
-
-    colors[m] = color;
-    for (let n of graph[m]) {
-      colors[n] = oppColor;
+    // Already processed.
+    if (!colors[i]) {
+      color(i, graph, colors);
     }
 
-    insertOrder.push(color);
+    insertOrder.push(colors[i]);
   }
-
-  let removeOrder = [];
-  for (let i = 0; i < marbles.length; i++) {
-    const m = marbles[i];
-    const color = getColor(m, graph, colors);
-    removeOrder.push(color);
-  }
-
-  // console.log(graph, marbles);
-  console.log(insertOrder, isValid(insertOrder));
-  console.log(removeOrder, isValid(removeOrder));
-  console.log(graph);
 
   if (isOdd) {
     insertOrder.pop();
@@ -127,34 +102,25 @@ function sol(input: string, marbles: number[]): string {
   return insertOrder.join('');
 }
 
-function getColor(m: number, graph: Record<number, Set<number>>, colors: Record<number, string>): string {
-  if (m in colors) {
-    return colors[m];
-  }
-
-  const nodes = graph[m];
-  for (let n of nodes) {
-    if (n in colors) {
-      const color = colors[n];
-      return OPP_COLOR[color];
-    }
-  }
-
-  return 'L';
+function update(node: number, edge: number, graph: Record<number, Set<number>>): void {
+  const edges = graph[node] || new Set();
+  edges.add(edge);
+  graph[node] = edges;
 }
 
+function color(m: number, graph: Record<number, Set<number>>, colors: Record<number, string>): void {
+  const queue = [m];
+  colors[m] = 'L';
 
-function isValid(order): boolean {
-  let balance = 0;
-  for (let i = 0; i < order.length; i++) {
-      let n = order[i];
-      const offset = n === 'L' ? 1 : -1;
-      balance += offset;
-      if (Math.abs(balance) > 1) {
-          return false;
+  while (queue.length) {
+    const node = queue.shift();
+    for (let subNode of graph[node]) {
+      if (!colors[subNode]) {
+        colors[subNode] = OPP_COLOR[colors[node]];
+        queue.push(subNode);
       }
+    }
   }
-  return true;
 }
 
 const OPP_COLOR = {
