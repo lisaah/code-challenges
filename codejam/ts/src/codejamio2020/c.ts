@@ -64,13 +64,14 @@ class StdinLineStream {
 async function parse(inputStream: StdinLineStream): Promise<[string]> {
   return [await inputStream.getLine()]
 }
-function calc(index: number, input: string, machineState: MachineState, currPath: string[]): string[][] {
+
+function calc(index: number, input: string, machineState: MachineState, currCount: number): number[] {
   if (index === input.length) {
-    return [currPath];
+    return [currCount];
   }
 
   const c =  input.charAt(index);
-  let paths = [];
+  let counts = [];
   if (c === 'I' || c === 'i') {
     const machines = c === 'I' ?
       [MACHINE_INDEX.IO, MACHINE_INDEX.Io] : [MACHINE_INDEX.io, MACHINE_INDEX.iO];
@@ -78,8 +79,7 @@ function calc(index: number, input: string, machineState: MachineState, currPath
       if (!machineState[machine_index]) {
         const copy = [...machineState];
         copy[machine_index] = true;
-        const updatedPaths = currPath;
-        paths = paths.concat(calc(index + 1, input, copy, currPath));
+        counts = counts.concat(calc(index + 1, input, copy, currCount));
       }
     })
   }
@@ -91,13 +91,13 @@ function calc(index: number, input: string, machineState: MachineState, currPath
       if (machineState[machine_index]) {
         const copy = [...machineState];
         copy[machine_index] = false;
-        const updatedPaths = [...currPath, MACHINE_INDEX_REVERSE[machine_index]];
-        paths = paths.concat(calc(index + 1, input, copy, updatedPaths));
+        let updateCount = machine_index === MACHINE_INDEX.IO ? currCount + 1 : currCount;
+        counts = counts.concat(calc(index + 1, input, copy, updateCount));
       }
     })
   }
 
-  return paths;
+  return counts;
 }
 
 const MACHINE_INDEX = {
@@ -106,13 +106,12 @@ const MACHINE_INDEX = {
   Io: 2,
   iO: 3
 }
-const MACHINE_INDEX_REVERSE = ['IO', 'io', 'Io', 'iO'];
 
 type MachineState = boolean[];
 function sol(input: string): string {
   const machineState = [false, false, false, false]
-  const paths = calc(0, input, machineState, []);
-  const total = Math.max.apply(null, paths.map((path) => path.filter((pair) => pair === 'IO').length))
+  const counts = calc(0, input, machineState, 0);
+  const total = Math.max.apply(null, counts);
   return `${total}`;
 }
 
