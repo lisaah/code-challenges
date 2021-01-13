@@ -16,6 +16,7 @@ interface Data {
   nearbyTickets: number[][]
 }
 
+
 function parse(arr: string[]): Data {
   const constraints: Constraint[] = [];
   const ticket: number[] = [];
